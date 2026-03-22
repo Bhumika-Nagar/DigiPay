@@ -2,7 +2,8 @@ const express= require("express");
 const {z}= require("zod");
 const {jwt}= require("jsonwebtoken");
 const {bcrypt}= require("bcrypt");
-const { User } = require("../db");
+const { User, Account } = require("../db");
+const { authmiddleware } = require("../middleware");
 const router= express.Router();
 
     const schema= z.object({
@@ -40,10 +41,21 @@ router.post("/signup",async(req,res)=>{
     lastname,
     password: hashedPassword
 });
+     
+    const userId= user._id;
 
-    
+    await Account.create({
+        userId,
+        balance: 1 + Math.random() * 1000
+    })
+
+    const token= jwt.sign({
+        userId
+    },process.env.JWT_SECRET);
+
     res.status(201).json({
-    message: "User created successfully"
+    message: "User created successfully",
+    token:token
 });
 
 
@@ -68,17 +80,74 @@ route.post("signin",async(req,res)=>{
         });
     }
 
-    const userId= user._id;
-    const token= jwt.sign({
-        userId
-    },process.env.JWT_SECRET);
-
     res.json({
-        message:"login successful",
-        token:token
+        message:"login successful"
     })
 });
 
+    const updatedBody= Zod.object({
+        password:zod.string().optional(),
+        firstname:zod.string().optional(),
+        lastname:zod.string().optional()
+    })
 
+router.put("/edit", authmiddleware, async (req, res) => {
+    const { success } = updatedBody.safeParse(req.body);
+
+    if (!success) {
+        return res.status(411).json({
+            message: "error while updating info"
+        });
+    }
+    if (req.body.password) {
+    req.body.password = await bcrypt.hash(req.body.password, 10);
+}
+    try {
+        await User.updateOne(
+            { _id: req.userId },  
+            { $set: req.body }     
+        );
+
+        res.json({
+            message: "Updated successfully"
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            message: "Something went wrong"
+        });
+    }
+});
+
+router.get("/bulk",authmiddleware,async (req,res)=>{
+    const filter= req.query.filter || "";
+
+    const users= await User.find({
+        $or:[
+            {
+                firstname:{
+                    "$regex":filter
+                }
+            },
+            {
+                lastname:{
+                    "$regex":filter
+                }
+            }
+            
+        ]
+    })
+
+res.json({
+    users:users.map(user=>({
+        username:user.username,
+        firstname:user.firstname,
+        lastname:user.lastname,
+        _id:user._id
+    
+    }))
+})
+
+})
 
 module.exports= router;
