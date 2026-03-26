@@ -23,9 +23,8 @@ const userSchema= new mongoose.Schema({
     password: {
         type:String,
         required:true,
-        unique:true,
         minLength:5,
-        maxLength:30
+        
     
 },
 
@@ -34,7 +33,7 @@ const userSchema= new mongoose.Schema({
 const accountSchema= new mongoose.Schema({
     userId:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:User,
+        ref:"User",
         required:true
     },
     balance:{

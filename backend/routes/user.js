@@ -1,7 +1,7 @@
 const express= require("express");
 const {z}= require("zod");
-const {jwt}= require("jsonwebtoken");
-const {bcrypt}= require("bcrypt");
+const jwt= require("jsonwebtoken");
+const bcrypt= require("bcrypt");
 const { User, Account } = require("../db");
 const { authmiddleware } = require("../middleware");
 const router= express.Router();
@@ -20,7 +20,7 @@ router.post("/signup",async(req,res)=>{
     const {lastname}= req.body;
     const {password}= req.body;
 
-    const {success}=schema.safeparse(req.body);
+    const {success}=schema.safeParse(req.body);
     if(!success){
         return res.status(411).json({
             message:"incorrect inputs"
@@ -46,8 +46,8 @@ router.post("/signup",async(req,res)=>{
 
     await Account.create({
         userId,
-        balance: 1 + Math.random() * 1000
-    })
+        balance: Math.floor(1 + Math.random() * 1000)
+    });
 
     const token= jwt.sign({
         userId
@@ -62,55 +62,49 @@ router.post("/signup",async(req,res)=>{
 });
 
 
-route.post("signin",async(req,res)=>{
+router.post("/signin",async(req,res)=>{
     const {username}= req.body;
     const {password}= req.body;
 
     const user= await User.findOne({ username })
     if(!user){
-        return res.status(404).json({
-            message:"invalid credentials"
+        return res.status(400).json({
+            message:"invalid user"
         })
     }
 
     const isMatch= await bcrypt.compare(password,user.password)
+
+    console.log("DB username:", user.username);
+    console.log("Input username:", username);
+
     if(!isMatch){
         return res.status(400).json({
             message:"invalid credentials"
         });
     }
 
+    const userId= user._id;
+
+    const token= jwt.sign({
+        userId
+    },process.env.JWT_SECRET);
+
     res.json({
-        message:"login successful"
+        message:"login successful",
+        token:token
     })
 });
 
-    const updatedBody= Zod.object({
-        password:zod.string().optional(),
-        firstname:zod.string().optional(),
-        lastname:zod.string().optional()
-    })
-
-router.put("/edit", authmiddleware, async (req, res) => {
-    const { success } = updatedBody.safeParse(req.body);
-
-    if (!success) {
-        return res.status(411).json({
-            message: "error while updating info"
-        });
-    }
-    if (req.body.password) {
-    req.body.password = await bcrypt.hash(req.body.password, 10);
-}
+router.get("/details", authmiddleware, async (req, res) => {
+    const userId = req.userId;
     try {
-        await User.updateOne(
-            { _id: req.userId },  
-            { $set: req.body }     
-        );
-
+        const user= await User.findOne({
+            _id: userId
+        })
         res.json({
-            message: "Updated successfully"
-        });
+            firstname:user.firstname
+        })
 
     } catch (err) {
         res.status(500).json({
@@ -126,12 +120,14 @@ router.get("/bulk",authmiddleware,async (req,res)=>{
         $or:[
             {
                 firstname:{
-                    "$regex":filter
+                    "$regex":filter,
+                    "$options":"i",
                 }
             },
             {
                 lastname:{
-                    "$regex":filter
+                    "$regex":filter,
+                    "$options":"i",
                 }
             }
             
