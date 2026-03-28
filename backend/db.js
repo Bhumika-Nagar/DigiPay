@@ -42,10 +42,27 @@ const accountSchema= new mongoose.Schema({
     }
 });
 
+const scheduledPaymentSchema= new mongoose.Schema({
+    fromUserId: String,
+    toUserId: String,
+    amount: Number,
+    executeAt: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
+        enum:["pending","completed","failed"],
+        default:"pending"
+    }
+},{ timestamps: true });
+
 const User= mongoose.model("User",userSchema);
 const Account= mongoose.model("Account",accountSchema);
+const ScheduledPayment = mongoose.model("ScheduledPayment",scheduledPaymentSchema);
 module.exports = {
     User,
-    Account
+    Account,
+    ScheduledPayment
 }
 ;
