@@ -1,5 +1,6 @@
 import { Appbar } from "../components/Appbar";
 import { Balance } from "../components/Balance";
+import  Button  from "../components/Button";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Users } from "../components/Users";
@@ -72,6 +73,7 @@ export default function Dashboard() {
       <Appbar user={user}/>
       <Balance value={value}/>
       <Users users={users} setFilter={setFilter} />
-    </div>
+
+         </div>
   );
 }
