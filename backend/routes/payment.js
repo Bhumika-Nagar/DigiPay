@@ -3,7 +3,7 @@ const mongoose= require("mongoose");
 const {z}= require("zod");
 const jwt= require("jsonwebtoken");
 const bcrypt= require("bcrypt");
-const { User, Account, SchedulePayment } = require("../db");
+const { User, Account, ScheduledPayment } = require("../db");
 const { authmiddleware } = require("../middleware");
 const cron= require("node-cron");
 const { processScheduledPayments } = require("../jobs/cron");
@@ -32,11 +32,11 @@ router.post("/schedule/run", authmiddleware, async (req, res) => {
 
 
 router.post("/schedule",authmiddleware,async(req,res)=>{
-
+    console.log("schedule route hit");
     const { toUserId, amount }= req.body;
     const executeAt= new Date (req.body.executeAt);
     try{
-        const payment= await SchedulePayment.create({
+        const payment= await ScheduledPayment.create({
             fromUserId:req.userId,
             toUserId,
             amount,
@@ -47,9 +47,17 @@ router.post("/schedule",authmiddleware,async(req,res)=>{
             payment
         });
     }catch(err){
-
+          error: err.message
     }
 })
+
+router.get("/scheduled-payments", authmiddleware, async (req, res) => {
+  const payments = await ScheduledPayment.find({
+    fromUserId: req.userId
+  });
+
+  res.json({ payments });
+});
 
 
 router.patch("/:id/cancel",authmiddleware,async(req,res)=>{})

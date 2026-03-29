@@ -1,7 +1,7 @@
 import { InputBox } from "../components/InputBox";
 import { Heading } from "../components/Heading";
 import { SubHeading } from "../components/SubHeading"
-import { Button } from "../components/Button";
+import  Button  from "../components/Button";
 import { Bottom } from "../components/Bottom";
 import { useState } from "react";
 import axios from "axios";
@@ -43,7 +43,7 @@ const Signup = () => {
                   console.log(err);
                   alert("signup failed");
                 }
-                }} label={"Sign up"} />
+                }} text="Sign up" className="bg-green-500 hover:bg-green-600 px-3 py-1"/>
             </div>
             <Bottom label={"Already have an account ?"} buttonText={"Sign in"} to={"/signin"}/>
         </div>

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Button } from "./Button";
+import Button  from "./Button";
 
 
 export function Users({ users, setFilter }) {
@@ -27,10 +27,12 @@ export function Users({ users, setFilter }) {
             <div>{user.firstname}</div>
           </div>
 
-          {/* ✅ simple navigation using Link */}
-          <Link to={`/send?id=${user._id}&name=${user.firstname}`}>
-            <Button label="Send Money" />
-          </Link>
+          
+  <Link to={`/send?id=${user._id}&name=${user.firstname}`}>
+  <Button
+    text="Send Money"
+    className="bg-green-500 hover:bg-green-600 px-3 py-1"/>
+  </Link>
         </div>
       ))}
     </div>
