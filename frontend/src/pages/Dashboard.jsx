@@ -73,7 +73,8 @@ export default function Dashboard() {
       <Appbar user={user}/>
       <Balance value={value}/>
       <Users users={users} setFilter={setFilter} />
-
-         </div>
+    </div>
   );
 }
+
+
