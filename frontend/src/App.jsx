@@ -9,6 +9,9 @@ import Dashboard from './pages/Dashboard';
 import Send from './pages/Send';
 import  ProtectedRoute from './components/ProtectedRoute';
 import Home from './components/Home';
+import ScheduledPayments from "./pages/ScheduledPayments";
+
+
 function App() {
 
   return (
@@ -24,6 +27,7 @@ function App() {
           </ProtectedRoute>
         }/>
         <Route path="/send" element={<Send/> } />
+        <Route path="/scheduled" element={<ScheduledPayments />} />
       </Routes>
     </BrowserRouter>
     

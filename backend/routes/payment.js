@@ -51,7 +51,7 @@ router.post("/schedule",authmiddleware,async(req,res)=>{
     }
 })
 
-router.get("/scheduled-payments", authmiddleware, async (req, res) => {
+router.get("/ScheduledPayments", authmiddleware, async (req, res) => {
   const payments = await ScheduledPayment.find({
     fromUserId: req.userId
   });
