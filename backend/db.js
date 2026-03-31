@@ -43,16 +43,27 @@ const accountSchema= new mongoose.Schema({
 });
 
 const scheduledPaymentSchema= new mongoose.Schema({
-    fromUserId: String,
-    toUserId: String,
+
+  fromUserId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  required: true
+}
+,
+  toUserId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  required: true
+}
+,
     amount: Number,
     executeAt: {
-        type: String,
+        type: Date,
         required: true
     },
     status: {
         type: String,
-        enum:["pending","completed","failed"],
+        enum:["pending","success","failed","cancelled"],
         default:"pending"
     }
 },{ timestamps: true });

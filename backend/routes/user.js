@@ -13,7 +13,6 @@ const router= express.Router();
         password:z.string().min(6)
     })
 
-
 router.post("/signup",async(req,res)=>{
     const {username}= req.body;
     const {firstname}= req.body;
