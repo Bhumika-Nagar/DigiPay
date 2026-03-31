@@ -9,10 +9,20 @@ const cron= require("node-cron");
 const { processScheduledPayments } = require("../jobs/cron");
 const router= express.Router();
 
-router.get("/",authmiddleware,async(req,res)=>{
+router.get("/ScheduledPayments", authmiddleware, async (req, res) => {
+  try {
+    const payments = await ScheduledPayment.find({ fromUserId: req.userId })
+      .populate("toUserId", "firstname lastname username")
+      .sort({ createdAt: -1 });
 
-})
-
+    res.json({ payments });
+  } catch (err) {
+    res.status(500).json({
+      message: "Error fetching scheduled payments",
+      error: err.message,
+    });
+  }
+});
 
 router.post("/schedule/run", authmiddleware, async (req, res) => {
   try {
@@ -46,20 +56,50 @@ router.post("/schedule",authmiddleware,async(req,res)=>{
             message:"payment scheduled successfully",
             payment
         });
-    }catch(err){
-          error: err.message
-    }
+    } catch (err) {
+  res.status(500).json({ message: "Error scheduling payment", error: err.message });
+}
+
 })
 
-router.get("/ScheduledPayments", authmiddleware, async (req, res) => {
-  const payments = await ScheduledPayment.find({
-    fromUserId: req.userId
+router.patch("/cancel/:paymentId",authmiddleware,async(req,res)=>{
+  try{
+  const paymentId= req.params.paymentId;
+
+  const payment= await ScheduledPayment.findById(paymentId);
+
+  if(!payment){
+    return res.status(404).json({
+        message:"payment not found"
+    })
+  }
+
+  if (payment.fromUserId.toString() !== req.userId) {
+  return res.status(403).json({
+    message: "Not authorized"
   });
+}
 
-  res.json({ payments });
-});
+  if(payment.status!="pending"){
+    return res.status(400).json({
+      message:"cannot cancel this payment"
+    });
+  }
 
+  payment.status="cancelled";
+  await payment.save();
 
-router.patch("/:id/cancel",authmiddleware,async(req,res)=>{})
+  res.json({
+    message:"payment cancelled successfully",
+    payment
+  })
+}catch(err){
+  res.status(500).json({
+    message:"error cancelling payment",
+    error:err.message
+  })
+}
+  })
+
 module.exports= router;
 
