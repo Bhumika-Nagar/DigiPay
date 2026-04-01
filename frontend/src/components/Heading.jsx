@@ -1,7 +1,7 @@
 export function Heading({ label }) {
   return (
-    <div className="text-2xl font-bold text-center mb-4">
+    <h1 className="text-3xl font-bold text-white tracking-tight">
       {label}
-    </div>
+    </h1>
   );
 }
