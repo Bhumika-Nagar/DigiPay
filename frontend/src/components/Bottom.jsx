@@ -1,14 +1,12 @@
-import { Link } from "react-router-dom"
-
+import { Link } from "react-router-dom";
 
 export function Bottom({ label, buttonText, to }) {
   return (
-    <div className="py-2 text-sm flex justify-center mt-4">
-      <div>{label}</div>
-
+    <div className="text-sm text-center mt-6 text-surface-400">
+      {label}{" "}
       <Link
         to={to}
-        className="underline pl-1 cursor-pointer text-blue-600"
+        className="text-primary-400 hover:text-primary-300 font-medium transition-colors duration-200"
       >
         {buttonText}
       </Link>

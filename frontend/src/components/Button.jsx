@@ -1,11 +1,19 @@
-function Button({ text, onClick, className }) {
+import { motion } from "framer-motion";
+
+function Button({ text, label, onClick, className = "", variant = "primary" }) {
+  const baseClasses = variant === "danger"
+    ? "btn-danger"
+    : "btn-primary";
+
   return (
-    <button
+    <motion.button
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`w-full text-white py-2 rounded-lg font-medium transition ${className}`}
+      className={`${baseClasses} ${className}`}
     >
-      {text}
-    </button>
+      {text || label}
+    </motion.button>
   );
 }
 
