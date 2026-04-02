@@ -1,12 +1,12 @@
 import { Appbar } from "../components/Appbar";
 import { Balance } from "../components/Balance";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Users } from "../components/Users";
 import { useDebounce } from "../hooks/useDebounce";
 import { motion } from "framer-motion";
 import GridBackground from "../components/GridBackground";
 import { Link } from "react-router-dom";
+import API from "../api/axios";
 
 export default function Dashboard() {
   const [users, setUsers] = useState([]);
@@ -18,8 +18,8 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/v1/user/bulk?filter=" + debouncedFilter,
+        const response = await API.get(
+          "$/api/v1/user/bulk?filter=" + debouncedFilter,
           {
             headers: {
               Authorization: "Bearer " + localStorage.getItem("token"),
@@ -37,7 +37,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchValue = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/v1/account/balance", {
+        const response = await API.get("http://localhost:5000/api/v1/account/balance", {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
           },
@@ -53,7 +53,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/v1/user/details", {
+        const response = await API.get("http://localhost:5000/api/v1/user/details", {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
           },
