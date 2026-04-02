@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import GridBackground from "../components/GridBackground";
 import { Appbar } from "../components/Appbar";
 import { Link } from "react-router-dom";
+import API from "../api/axios";
 
 const statusConfig = {
   pending: {
@@ -35,7 +35,7 @@ export default function ScheduledPayments() {
 
   const fetchPayments = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/v1/payment/ScheduledPayments", {
+      const res = await API.get("http://localhost:5000/api/v1/payment/ScheduledPayments", {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
@@ -57,7 +57,7 @@ export default function ScheduledPayments() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/v1/user/details", {
+        const response = await API.get("http://localhost:5000/api/v1/user/details", {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
           },
@@ -72,7 +72,7 @@ export default function ScheduledPayments() {
 
   const cancelPayment = async (paymentId) => {
     try {
-      await axios.patch(
+      await API.patch(
         `http://localhost:5000/api/v1/payment/cancel/${paymentId}`,
         {},
         {

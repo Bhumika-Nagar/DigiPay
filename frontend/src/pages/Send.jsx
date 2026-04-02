@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import axios from "axios";
 import { motion } from "framer-motion";
 import GridBackground from "../components/GridBackground";
+import API from "../api/axios";
 
 export default function Send() {
   const [amount, setAmount] = useState("");
@@ -27,7 +27,7 @@ export default function Send() {
     setError("");
     setLoading(true);
     try {
-      await axios.post(
+      await API.post(
         "http://localhost:5000/api/v1/payment/schedule",
         {
           toUserId: id,
@@ -56,7 +56,7 @@ export default function Send() {
     setError("");
     setLoading(true);
     try {
-      await axios.post(
+      await API.post(
         "http://localhost:5000/api/v1/account/transfer",
         {
           to: id,

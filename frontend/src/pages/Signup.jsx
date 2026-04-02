@@ -1,7 +1,7 @@
 import { InputBox } from "../components/InputBox";
 import { Bottom } from "../components/Bottom";
 import { useState } from "react";
-import axios from "axios";
+import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import GridBackground from "../components/GridBackground";
@@ -19,7 +19,7 @@ const Signup = () => {
     setError("");
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:5000/api/v1/user/signup", {
+      const response = await API.post("http://localhost:5000/api/v1/user/signup", {
         username,
         firstname,
         lastname,
