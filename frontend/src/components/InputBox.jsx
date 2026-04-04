@@ -1,15 +1,22 @@
-export function InputBox({ label, placeholder, onChange, type = "text" }) {
+export function InputBox({
+  label,
+  placeholder,
+  onChange,
+  type = "text",
+  value = "",
+}) {
   return (
-    <div className="mb-4">
-      <label className="block text-xs font-medium text-surface-400 uppercase tracking-wider mb-2">
+    <label className="field">
+      <span className="field__label">
         {label}
-      </label>
+      </span>
       <input
         onChange={onChange}
         type={type}
         placeholder={placeholder}
-        className="input-field"
+        className="field__input"
+        value={value}
       />
-    </div>
+    </label>
   );
 }

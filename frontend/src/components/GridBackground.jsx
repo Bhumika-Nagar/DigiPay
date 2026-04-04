@@ -2,40 +2,45 @@ import { motion } from "framer-motion";
 
 export default function GridBackground({ children }) {
   return (
-    <div className="min-h-screen bg-mesh relative overflow-hidden">
-      {/* Animated dot grid */}
-      <div className="absolute inset-0 dot-grid animate-grid-fade" />
-
-      {/* Floating gradient orbs */}
+    <div className="page-shell">
+      <div className="page-shell__grid" />
       <motion.div
-        className="absolute top-1/4 -left-32 w-96 h-96 bg-primary-600/10 rounded-full blur-3xl"
+        className="page-shell__orb page-shell__orb--one"
         animate={{
-          x: [0, 30, 0],
-          y: [0, -20, 0],
+          x: [0, 36, 0],
+          y: [0, -24, 0],
         }}
         transition={{
-          duration: 8,
+          duration: 11,
           repeat: Infinity,
           ease: "easeInOut",
         }}
       />
       <motion.div
-        className="absolute bottom-1/4 -right-32 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl"
+        className="page-shell__orb page-shell__orb--two"
         animate={{
           x: [0, -30, 0],
-          y: [0, 20, 0],
+          y: [0, 28, 0],
         }}
         transition={{
-          duration: 10,
+          duration: 14,
           repeat: Infinity,
           ease: "easeInOut",
         }}
       />
-
-      {/* Content */}
-      <div className="relative z-10">
-        {children}
-      </div>
+      <motion.div
+        className="page-shell__orb page-shell__orb--three"
+        animate={{
+          x: [0, 18, 0],
+          y: [0, 22, 0],
+        }}
+        transition={{
+          duration: 16,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+      <div className="page-shell__content">{children}</div>
     </div>
   );
 }

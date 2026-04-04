@@ -1,83 +1,78 @@
-const express= require("express");
-const {z}= require("zod");
-const {jwt}= require("jsonwebtoken");
-const {bcrypt}= require("bcrypt");
-const { User, Account } = require("../db");
-const { authmiddleware } = require("../middleware");
-const router= express.Router();
+const express = require("express");
+const { Account } = require("../db");
+const authmiddleware = require("../middleware");
 
-router.get("balance",authmiddleware,async(req,res)=>{
-    const account= await Account.findOne({
-        userId:req.userId
-    })
-        res.json({
-            balance:account.balance
-        })
-})
+const router = express.Router();
 
-router.post("transfer",authmiddleware,async(req,res)=>{
-    const { amount , receiverId } = req.body;
+router.get("/balance", authmiddleware, async (req, res) => {
+    const account = await Account.findOne({
+        userId: req.userId
+    });
 
-    const user= await Account.findOne({
-        userId:req.userId
-    })
-    if(!Account || !Account.balance==amount){
-      return res.json({
-            message:"balance not available"
-        })
+    if (!account) {
+        return res.status(404).json({
+            message: "account not found"
+        });
     }
-
-    const receiver= await Account.findOne({
-        userId:receiverId
-    })
-    if(!receiver){
-        return res.json({
-            message:"cannot find the receiver"
-        })
-    }
-
-    await Account.updateOne(
-
-        {userId:req.userId},{
-            $inc: {balance: -amount}
-        },
-            {session}
-    )
-
-    await Account.updateOne(
-
-        {userId:receiverId},{ 
-            $inc: {balance: +amount}
-        },
-            {session}
-    )
 
     res.json({
-        message:"transaction completed successfully"
-    })
-})
+        balance: account.balance
+    });
+});
 
+router.post("/transfer", authmiddleware, async (req, res) => {
+    const { amount, receiverId, to } = req.body;
+    const targetUserId = receiverId || to;
 
+    if (!targetUserId || !amount || Number(amount) <= 0) {
+        return res.status(400).json({
+            message: "invalid transfer details"
+        });
+    }
 
+    if (String(targetUserId) === String(req.userId)) {
+        return res.status(400).json({
+            message: "cannot transfer to yourself"
+        });
+    }
 
+    const senderAccount = await Account.findOne({
+        userId: req.userId
+    });
 
+    if (!senderAccount || senderAccount.balance < Number(amount)) {
+        return res.status(400).json({
+            message: "balance not available"
+        });
+    }
 
+    const receiverAccount = await Account.findOne({
+        userId: targetUserId
+    });
 
+    if (!receiverAccount) {
+        return res.status(404).json({
+            message: "cannot find the receiver"
+        });
+    }
 
+    await Account.updateOne(
+        { userId: req.userId },
+        {
+            $inc: { balance: -Number(amount) }
+        }
+    );
 
+    await Account.updateOne(
+        { userId: targetUserId },
+        {
+            $inc: { balance: Number(amount) }
+        }
+    );
 
+    res.json({
+        message: "transaction completed successfully"
+    });
+});
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports= router;
+module.exports = router;
