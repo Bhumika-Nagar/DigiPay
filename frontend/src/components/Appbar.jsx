@@ -1,11 +1,18 @@
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { AUTH_BYPASS } from "../config/devMode";
+import { logout } from "../lib/api";
 
 export function Appbar({ user }) {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
+    if (!AUTH_BYPASS) {
+      await logout();
+      navigate("/signin");
+      return;
+    }
+
     navigate("/signin");
   };
 
@@ -13,56 +20,47 @@ export function Appbar({ user }) {
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="glass-card border-b border-surface-800/50 sticky top-0 z-50"
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="topbar"
     >
-      <div className="max-w-6xl mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          
-          <Link to="/dashboard" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/20">
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <div className="topbar__inner">
+        <div className="topbar__row">
+          <Link to="/" className="brand-mark">
+            <div className="brand-mark__icon">
+              <svg className="brand-mark__svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <span className="text-lg font-bold text-white">
-              Digi<span className="text-gradient">Pay</span>
+            <span className="brand-mark__wordmark">
+              Digi<span>Pay</span>
             </span>
           </Link>
 
-          
-          <div className="hidden sm:flex items-center gap-6">
-            <Link
-              to="/dashboard"
-              className="text-sm text-surface-400 hover:text-white transition-colors duration-200"
-            >
+          <div className="topbar__nav">
+            <Link to="/dashboard" className="topbar__link">
               Dashboard
             </Link>
-            <Link
-              to="/scheduled"
-              className="text-sm text-surface-400 hover:text-white transition-colors duration-200"
-            >
+            <Link to="/scheduled" className="topbar__link">
               Scheduled
+            </Link>
+            <Link to="/signin" className="topbar__link">
+              Sign in
             </Link>
           </div>
 
-          
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <p className="text-xs text-surface-500">Welcome back</p>
-              <p className="text-sm font-semibold text-white">
-                {user?.firstname || "User"}
+          <div className="topbar__actions">
+            <div className="topbar__identity">
+              <p className="topbar__eyebrow">Wallet owner</p>
+              <p className="topbar__name">
+                {user?.firstname ? `${user.firstname} ${user.lastname || ""}`.trim() : "Guest"}
               </p>
             </div>
 
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-primary-500/20">
+            <div className="topbar__avatar">
               {user?.firstname?.charAt(0)?.toUpperCase() || "U"}
             </div>
 
-            <button
-              onClick={handleLogout}
-              className="text-xs text-surface-500 hover:text-red-400 transition-colors duration-200 ml-1"
-            >
+            <button onClick={handleLogout} className="topbar__logout">
               Logout
             </button>
           </div>

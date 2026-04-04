@@ -1,12 +1,13 @@
 import { Appbar } from "../components/Appbar";
 import { Balance } from "../components/Balance";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Users } from "../components/Users";
 import { useDebounce } from "../hooks/useDebounce";
 import { motion } from "framer-motion";
 import GridBackground from "../components/GridBackground";
 import { Link } from "react-router-dom";
+import { AUTH_BYPASS, DEMO_USER, DEMO_USERS } from "../config/devMode";
+import { api } from "../lib/api";
 
 export default function Dashboard() {
   const [users, setUsers] = useState([]);
@@ -16,16 +17,23 @@ export default function Dashboard() {
   const debouncedFilter = useDebounce(filter, 1000);
 
   useEffect(() => {
+    if (AUTH_BYPASS) {
+      const filteredUsers = DEMO_USERS.filter((entry) => {
+        const query = debouncedFilter.trim().toLowerCase();
+        if (!query) {
+          return true;
+        }
+
+        return `${entry.firstname} ${entry.lastname}`.toLowerCase().includes(query);
+      });
+
+      setUsers(filteredUsers);
+      return;
+    }
+
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/v1/user/bulk?filter=" + debouncedFilter,
-          {
-            headers: {
-              Authorization: "Bearer " + localStorage.getItem("token"),
-            },
-          }
-        );
+        const response = await api.get("/user/bulk?filter=" + debouncedFilter);
         setUsers(response.data.users);
       } catch (err) {
         console.log(err);
@@ -35,13 +43,14 @@ export default function Dashboard() {
   }, [debouncedFilter]);
 
   useEffect(() => {
+    if (AUTH_BYPASS) {
+      setValue(82450);
+      return;
+    }
+
     const fetchValue = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/v1/account/balance", {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-        });
+        const response = await api.get("/account/balance");
         setValue(response.data.balance);
       } catch (err) {
         console.log(err);
@@ -51,13 +60,14 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
+    if (AUTH_BYPASS) {
+      setUser(DEMO_USER);
+      return;
+    }
+
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/v1/user/details", {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-        });
+        const response = await api.get("/user/details");
         setUser(response.data);
       } catch (err) {
         console.log(err);
@@ -70,44 +80,63 @@ export default function Dashboard() {
     <GridBackground>
       <Appbar user={user} />
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          
-          <div className="md:col-span-2">
+      <div className="app-layout">
+        <motion.section
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+          className="hero-panel"
+        >
+          <div>
+            <p className="section-tag">Wallet overview</p>
+            <h1 className="hero-panel__title">
+              {user?.firstname ? `Good to see you, ${user.firstname}.` : "Your wallet, re-centered."}
+            </h1>
+            <p className="hero-panel__body">
+              Review liquidity, find recipients, and launch transfers from a
+              single workspace.
+            </p>
+          </div>
+          <div className="hero-panel__chips">
+            <span className="hero-chip">Live directory search</span>
+            <span className="hero-chip">Fast transfers</span>
+            <span className="hero-chip">Scheduled payouts</span>
+          </div>
+        </motion.section>
+
+        <div className="dashboard-grid">
+          <div className="dashboard-grid__primary">
             <Balance value={value} />
           </div>
 
-          
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="glass-card rounded-2xl p-6 border border-surface-800/50"
+            className="panel panel--compact"
           >
-            <p className="text-xs font-medium text-surface-500 uppercase tracking-wider mb-4">
+            <p className="panel__eyebrow">
               Quick Actions
             </p>
-            <div className="space-y-3">
+            <div className="action-stack">
               <Link
                 to="/scheduled"
-                className="flex items-center gap-3 p-3 rounded-xl bg-surface-800/30 hover:bg-surface-800/50 border border-surface-700/30 hover:border-surface-700/50 transition-all duration-300 group"
+                className="action-card"
               >
-                <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                  <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className="action-card__icon">
+                  <svg className="action-card__svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-white group-hover:text-primary-300 transition-colors">Scheduled Payments</p>
-                  <p className="text-xs text-surface-500">View & manage</p>
+                <div className="action-card__content">
+                  <p className="action-card__title">Scheduled Payments</p>
+                  <p className="action-card__body">View, monitor, and cancel pending transfers.</p>
                 </div>
               </Link>
             </div>
           </motion.div>
         </div>
 
-        
         <Users users={users} setFilter={setFilter} />
       </div>
     </GridBackground>
