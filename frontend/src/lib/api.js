@@ -1,9 +1,11 @@
 import axios from "axios";
 
 const TOKEN_KEY = "token";
+const rawBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+const baseURL = rawBaseUrl.replace(/\/+$/, "");
 
 export const api = axios.create({
-  baseURL: "http://localhost:5000/api/v1",
+  baseURL,
 });
 
 export function getStoredToken() {
